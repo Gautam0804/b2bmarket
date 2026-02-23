@@ -1,16 +1,80 @@
-# React + Vite
+ 🏢 B2BMarket.com
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern B2B marketplace platform built using React + Vite + Tailwind CSS.
 
-Currently, two official plugins are available:
+Inspired by platforms like ExportersIndia & IndiaMART.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 Live Demo
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+👉 https://your-live-link.vercel.app
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📌 Features
+
+- 🔍 Advanced Product Search
+- 🏷️ Category-wise Product Listing
+- 📦 View All Products Page
+- 🛒 Product Details Page
+- 📢 Post Buy Requirement
+- 👤 Login & Join Free Pages
+- 📊 Trending B2B Categories
+- 🏢 Mega Category Sidebar
+- 📱 Fully Responsive UI
+- 🎨 Modern Professional Design
+
+---
+
+## 🛠️ Tech Stack
+
+- React (Vite)
+- React Router DOM
+- Tailwind CSS
+- React Icons
+- JavaScript (ES6+)
+
+---
+
+## 📂 Project Structure
+
+
+src/
+│
+├── components/
+│ ├── Navbar.jsx
+│ ├── Sidebar.jsx
+│
+├── pages/
+│ ├── Home.jsx
+│ ├── ViewAllProducts.jsx
+│ ├── ProductDetails.jsx
+│ ├── Login.jsx
+│ ├── JoinFree.jsx
+│ ├── PostRequirement.jsx
+│
+├── App.jsx
+└── main.jsx
+
+
+---
+
+## ⚙️ Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/gautam0804/b2bmarket.git
+
+Go inside project:
+
+cd b2bmarket
+
+Install dependencies:
+
+npm install
+
+Run locally:
+
+npm run dev
