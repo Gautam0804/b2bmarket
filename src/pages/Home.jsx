@@ -85,7 +85,7 @@ export default function Home() {
           {/* TRENDING */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-2xl font-semibold mb-6">
-              Trending B2B Product Categories
+              Trending Product Categories
             </h2>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -876,10 +876,10 @@ export default function Home() {
 
   </div>
 </div>
-{/* ================= B2B WEB STORIES ================= */}
+{/* =================  WEB STORIES ================= */}
 <div className="bg-white shadow rounded-lg p-6">
   <h2 className="text-xl font-semibold mb-6">
-    B2B Web Stories
+     Web Stories
   </h2>
 
   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

@@ -1,141 +1,166 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { X, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader2, Mail, ShieldCheck } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
-  const [mobile, setMobile] = useState("");
-  const [step, setStep] = useState("mobile"); // mobile | otp
+  const navigate = useNavigate();
+  const otpRef = useRef(null);
+
+  const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [step, setStep] = useState("email");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const navigate = useNavigate();
-
-  const handleMobileSubmit = (e) => {
+  // 🔹 Send OTP
+  const handleSendOtp = async (e) => {
     e.preventDefault();
 
-    if (mobile.length !== 10) {
-      setMessage("❌ Please enter valid 10-digit mobile number");
+    if (!email.includes("@")) {
+      setMessage("❌ Enter valid email address");
       return;
     }
 
     setLoading(true);
     setMessage("");
 
-    setTimeout(() => {
-      setLoading(false);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setMessage("❌ " + error.message);
+    } else {
       setStep("otp");
-      setMessage("📩 OTP sent to your mobile number");
-    }, 1200);
+      setMessage("📩 OTP sent to your email");
+      setTimeout(() => otpRef.current?.focus(), 300);
+    }
   };
 
-  const handleOtpSubmit = (e) => {
+  // 🔹 Verify OTP
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
 
-    if (otp.length !== 4) {
-      setMessage("❌ Enter valid 4-digit OTP");
+    if (otp.length < 6) {
+      setMessage("❌ Enter valid OTP");
       return;
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setMessage("");
+
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: "email",
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setMessage("❌ Invalid OTP");
+    } else {
       setMessage("✅ Login Successful!");
-      setTimeout(() => navigate("/"), 1000);
-    }, 1200);
+      setTimeout(() => navigate("/"), 800);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-800 via-indigo-700 to-purple-800 flex items-center justify-center px-4 relative">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 animate-gradient">
+      
+      {/* Glass Card */}
+      <div className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl w-full max-w-md p-8 text-white transition-all duration-500">
 
-      {/* Modal Box */}
-      <div className="bg-white/90 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl p-8 relative animate-fadeIn">
-
-        {/* Close Button */}
-        <button
-          onClick={() => navigate("/")}
-          className="absolute right-4 top-4 text-gray-500 hover:text-black"
-        >
-          <X size={20} />
-        </button>
-
-        <h2 className="text-2xl font-bold text-center mb-2">
-          Login
+        <h2 className="text-3xl font-bold text-center mb-2 tracking-wide">
+          Welcome Back 
         </h2>
-        <p className="text-center text-sm text-gray-500 mb-6">
-          Continue with your mobile number
+
+        <p className="text-center text-sm text-gray-200 mb-8">
+          Login securely with email OTP
         </p>
 
-        {step === "mobile" && (
-          <form onSubmit={handleMobileSubmit}>
+        {/* STEP 1 - EMAIL */}
+        {step === "email" && (
+          <form onSubmit={handleSendOtp} className="space-y-6">
 
-            <div className="flex border rounded-lg overflow-hidden mb-4">
-              <span className="px-3 bg-gray-100 flex items-center text-sm">
-                🇮🇳 +91
-              </span>
+            <div className="relative">
+              <Mail className="absolute left-3 top-3 text-gray-300" size={18} />
               <input
-                type="tel"
-                placeholder="Enter Mobile Number"
-                value={mobile}
-                onChange={(e) => setMobile(e.target.value)}
-                className="flex-1 p-3 outline-none"
-                maxLength="10"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                list="email-suggestions"
+                autoComplete="email"
+                required
+                className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-300 text-white"
+              />
+            </div>
+
+            {/* Auto Suggest */}
+            <datalist id="email-suggestions">
+              <option value={`${email.split("@")[0]}@gmail.com`} />
+              <option value={`${email.split("@")[0]}@outlook.com`} />
+              <option value={`${email.split("@")[0]}@yahoo.com`} />
+            </datalist>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-indigo-500 hover:bg-indigo-600 transition py-3 rounded-xl font-semibold flex justify-center items-center gap-2 shadow-lg"
+            >
+              {loading && <Loader2 className="animate-spin" size={18} />}
+              Send OTP
+            </button>
+          </form>
+        )}
+
+        {/* STEP 2 - OTP */}
+        {step === "otp" && (
+          <form onSubmit={handleVerifyOtp} className="space-y-6">
+
+            <div className="relative">
+              <ShieldCheck className="absolute left-3 top-3 text-gray-300" size={18} />
+              <input
+                ref={otpRef}
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                maxLength="8"
+                required
+                className="w-full pl-10 p-3 bg-white/20 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-gray-300 text-white tracking-widest text-center text-lg"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2"
-            >
-              {loading && <Loader2 className="animate-spin" size={18} />}
-              Continue
-            </button>
-          </form>
-        )}
-
-        {step === "otp" && (
-          <form onSubmit={handleOtpSubmit}>
-
-            <input
-              type="text"
-              placeholder="Enter 4-digit OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              maxLength="4"
-              className="w-full p-3 border rounded-lg mb-4 outline-none focus:ring-2 focus:ring-blue-600"
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition flex justify-center items-center gap-2"
+              className="w-full bg-green-500 hover:bg-green-600 transition py-3 rounded-xl font-semibold flex justify-center items-center gap-2 shadow-lg"
             >
               {loading && <Loader2 className="animate-spin" size={18} />}
               Verify & Login
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              className="text-sm text-indigo-300 hover:underline block mx-auto"
+            >
+              Resend OTP
             </button>
           </form>
         )}
 
         {message && (
-          <p className="text-center mt-4 text-sm font-medium">
+          <p className="text-center mt-6 text-sm font-medium text-yellow-300">
             {message}
           </p>
         )}
-
-        <p className="text-center text-sm mt-6">
-          Not Registered yet?{" "}
-          <Link
-            to="/join-free"
-            className="text-blue-600 font-semibold hover:underline"
-          >
-            Join Free
-          </Link>
-        </p>
-
-        <p className="text-xs text-center text-gray-500 mt-3">
-          Forgot your registered mobile? Click Here
-        </p>
       </div>
     </div>
   );

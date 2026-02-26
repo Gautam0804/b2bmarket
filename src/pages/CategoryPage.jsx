@@ -33,7 +33,7 @@ const categoryProducts = {
   "food-products": [
     { id: 21, name: "Premium Basmati Rice", price: "₹ 120 / Kg", img: "https://images.unsplash.com/photo-1686820740687-426a7b9b2043?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fFByZW1pdW0lMjBCYXNtYXRpJTIwUmljZXxlbnwwfHwwfHx8MA%3D%3D" },
     { id: 22, name: "Organic Wheat Flour", price: "₹ 45 / Kg", img: "https://images.unsplash.com/photo-1627485937980-221c88ac04f9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fE9yZ2FuaWMlMjBXaGVhdCUyMEZsb3VyfGVufDB8fDB8fHww" },
-    { id: 23, name: "Natural Honey Bottle", price: "₹ 320 / Bottle", img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=500" },
+    { id: 23, name: "Watermaelon", price: "₹ 60 / Kg", img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=500" },
     { id: 24, name: "Green Tea Leaves", price: "₹ 600 / Kg", img: "https://images.unsplash.com/photo-1556881286-fc6915169721?w=500" },
     { id: 25, name: "Instant Coffee Powder", price: "₹ 450 / Jar", img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500" },
     { id: 26, name: "Spice Masala Powder", price: "₹ 220 / Packet", img: "https://images.unsplash.com/photo-1505577058444-a3dab90d4253?w=500" },

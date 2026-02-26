@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   User,
   Building2,
@@ -9,9 +10,13 @@ import {
   Globe,
   Inbox,
   Handshake,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 export default function JoinFree() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     company: "",
@@ -19,26 +24,62 @@ export default function JoinFree() {
     email: "",
   });
 
-  // ✅ Correctly defined ref
-  const formRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Account Created Successfully 🚀");
-    setFormData({ name: "", company: "", mobile: "", email: "" });
-  };
+// ✅ REGISTER USER (REDIRECT TO HOME AFTER SUCCESS)
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (formData.mobile.length !== 10) {
+    setMessage("❌ Enter valid 10-digit mobile number");
+    return;
+  }
+
+  setLoading(true);
+  setMessage("");
+
+  // 🔹 Create account (sends Confirm Signup email)
+  const { data, error } = await supabase.auth.signUp({
+    email: formData.email,
+    password: "TempPassword@123", // dummy password
+  });
+
+  if (error) {
+    setLoading(false);
+    setMessage("❌ " + error.message);
+    return;
+  }
+
+  // 🔹 Insert profile details
+  await supabase.from("profiles").insert({
+    id: data.user.id,
+    email: formData.email,
+    name: formData.name,
+    company: formData.company,
+    mobile: formData.mobile,
+  });
+
+  // 🔹 Logout immediately (not logged in)
+  await supabase.auth.signOut();
+
+  setLoading(false);
+  setMessage("✅ Account Created Successfully!");
+
+  // 🔹 Redirect to HOME page (NOT login)
+  setTimeout(() => {
+    navigate("/");
+  }, 1500);
+};
 
   return (
     <>
-      {/* ================= HERO + FORM ================= */}
-      <div
-        ref={formRef}
-        className="min-h-screen bg-gradient-to-r from-blue-900 to-blue-700 flex items-center justify-center px-6 py-16"
-      >
+      {/* HERO + FORM */}
+      <div className="min-h-screen bg-gradient-to-r from-blue-900 to-blue-700 flex items-center justify-center px-6 py-16">
         <div className="max-w-6xl w-full grid md:grid-cols-2 gap-12 items-center">
 
           {/* LEFT CONTENT */}
@@ -57,16 +98,14 @@ export default function JoinFree() {
             </div>
           </div>
 
-          {/* RIGHT FORM */}
+          {/* FORM */}
           <div className="bg-white rounded-2xl shadow-2xl p-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Register your Company FREE
             </h2>
-            <p className="text-sm text-gray-500 mb-6">
-              Get verified buyers for your product.
-            </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+
               <Input
                 icon={<User size={18} />}
                 name="name"
@@ -74,6 +113,7 @@ export default function JoinFree() {
                 value={formData.name}
                 onChange={handleChange}
               />
+
               <Input
                 icon={<Building2 size={18} />}
                 name="company"
@@ -81,6 +121,7 @@ export default function JoinFree() {
                 value={formData.company}
                 onChange={handleChange}
               />
+
               <Input
                 icon={<Phone size={18} />}
                 name="mobile"
@@ -88,6 +129,7 @@ export default function JoinFree() {
                 value={formData.mobile}
                 onChange={handleChange}
               />
+
               <Input
                 icon={<Mail size={18} />}
                 name="email"
@@ -99,29 +141,32 @@ export default function JoinFree() {
 
               <button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 transition text-white font-semibold py-3 rounded-lg"
+                disabled={loading}
+                className="w-full bg-red-600 hover:bg-red-700 transition text-white font-semibold py-3 rounded-lg flex justify-center items-center gap-2"
               >
+                {loading && <Loader2 className="animate-spin" size={18} />}
                 Create Account →
               </button>
 
-              <p className="text-xs text-gray-500 text-center pt-2">
-                By clicking Create Account, you accept Terms & Privacy Policy.
-              </p>
+              {message && (
+                <p className="text-sm text-center mt-2 font-medium">
+                  {message}
+                </p>
+              )}
             </form>
           </div>
         </div>
       </div>
 
-      {/* ================= HOW IT WORKS ================= */}
+      {/* HOW IT WORKS */}
       <section className="bg-gray-50 py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-16">
+          <h2 className="text-3xl font-bold text-center mb-16">
             How B2BMarket Works?
           </h2>
 
           <div className="grid md:grid-cols-2 gap-16 items-center">
 
-            {/* Mock Mobile */}
             <div className="flex justify-center">
               <div className="w-72 h-[500px] bg-white shadow-2xl rounded-[40px] border-8 border-gray-800 flex flex-col justify-center items-center p-6">
                 <UserPlus className="text-blue-600 mb-4" size={40} />
@@ -131,23 +176,12 @@ export default function JoinFree() {
               </div>
             </div>
 
-            {/* Steps */}
             <div className="space-y-8">
               <Step icon={<UserPlus />} title="Register on B2BMarket" />
               <Step icon={<Package />} title="Add Your Products & Services" />
               <Step icon={<Globe />} title="Your Products Display Online" />
               <Step icon={<Inbox />} title="Receive Buyer Inquiries" />
-              <Step icon={<Handshake />} title="Connect Instantly & Close Deals" />
-
-              {/* ✅ Scroll Button */}
-              <button
-                onClick={() =>
-                  formRef.current?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition cursor-pointer"
-              >
-                Register Now →
-              </button>
+              <Step icon={<Handshake />} title="Connect & Close Deals" />
             </div>
           </div>
         </div>
@@ -156,7 +190,7 @@ export default function JoinFree() {
   );
 }
 
-/* ---------- Small Components ---------- */
+/* ---------- Components ---------- */
 
 function Input({ icon, name, placeholder, value, onChange, type = "text" }) {
   return (

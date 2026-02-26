@@ -7,6 +7,7 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
   const [interest, setInterest] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen || !product) return null;
 
@@ -18,7 +19,7 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!quantity || !mobile) {
       setError("Please fill all required fields.");
       return;
@@ -30,21 +31,53 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
     }
 
     setError("");
-    setSuccess(true);
+    setLoading(true);
 
-    // Reset form after 2 seconds
-    setTimeout(() => {
-      setSuccess(false);
-      setQuantity("");
-      setMobile("");
-      setInterest([]);
-      onClose();
-    }, 2000);
+    try {
+      const response = await fetch(
+        "https://esusuybqdjrugkgwblzz.supabase.co/functions/v1/clever-task",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            product: product.name,
+            quantity,
+            unit,
+            mobile,
+            interest,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send inquiry");
+      }
+
+      setSuccess(true);
+
+      setTimeout(() => {
+        setSuccess(false);
+        setQuantity("");
+        setMobile("");
+        setInterest([]);
+        onClose();
+      }, 2000);
+
+    } catch (err) {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-
       <div className="bg-white w-[900px] max-w-5xl rounded-xl shadow-2xl flex relative">
 
         {/* CLOSE */}
@@ -62,22 +95,16 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
             alt={product.name}
             className="w-full h-72 object-cover rounded-lg shadow"
           />
-
           <h3 className="mt-4 font-semibold text-lg text-gray-800">
             {product.name}
           </h3>
-
           <p className="text-orange-600 font-bold mt-2 text-lg">
             {product.price}
           </p>
-
           <p className="text-sm text-gray-500 mt-2">
             Sold By: <span className="font-medium">Verified Supplier</span>
           </p>
-
-          <p className="text-sm text-gray-500">
-            Location: India
-          </p>
+          <p className="text-sm text-gray-500">Location: India</p>
         </div>
 
         {/* RIGHT FORM */}
@@ -161,7 +188,10 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
                     type="tel"
                     placeholder="Enter Mobile Number"
                     value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
+                    onChange={(e) =>
+                      setMobile(e.target.value.replace(/\D/g, ""))
+                    }
+                    maxLength="10"
                     className="w-full border p-2 rounded-r"
                   />
                 </div>
@@ -176,9 +206,10 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
               {/* BUTTON */}
               <button
                 onClick={handleSubmit}
+                disabled={loading}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-medium transition shadow"
               >
-                Submit Inquiry →
+                {loading ? "Sending..." : "Submit Inquiry →"}
               </button>
 
               <p className="text-xs text-gray-500 text-center mt-3">

@@ -10,6 +10,7 @@ import CategoryPage from "./pages/CategoryPage";
 import ViewAllProducts from "./pages/ViewAllProducts";
 import JoinFree from "./pages/JoinFree";
 import PostRequirement from "./pages/PostRequirement";
+import Help from "./pages/Help";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/view-all" element={<ViewAllProducts />} />
         <Route path="/join-free" element={<JoinFree />} />
         <Route path="/post-requirement" element={<PostRequirement />} />
+        <Route path="/help" element={<Help />} />
       </Routes>
 
       <Footer />
