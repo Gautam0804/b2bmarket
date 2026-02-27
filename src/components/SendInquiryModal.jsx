@@ -19,7 +19,7 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
     );
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!quantity || !mobile) {
       setError("Please fill all required fields.");
       return;
@@ -33,34 +33,12 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
     setError("");
     setLoading(true);
 
-    try {
-      const response = await fetch(
-        "https://esusuybqdjrugkgwblzz.supabase.co/functions/v1/clever-task",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            product: product.name,
-            quantity,
-            unit,
-            mobile,
-            interest,
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to send inquiry");
-      }
-
+    // Fake loading effect
+    setTimeout(() => {
+      setLoading(false);
       setSuccess(true);
 
+      // Auto close after 2 seconds
       setTimeout(() => {
         setSuccess(false);
         setQuantity("");
@@ -69,18 +47,14 @@ export default function SendInquiryModal({ isOpen, onClose, product }) {
         onClose();
       }, 2000);
 
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    }, 800);
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white w-[900px] max-w-5xl rounded-xl shadow-2xl flex relative">
 
-        {/* CLOSE */}
+        {/* CLOSE BUTTON */}
         <button
           onClick={onClose}
           className="absolute top-4 right-5 text-gray-500 hover:text-black text-xl"
